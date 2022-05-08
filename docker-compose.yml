@@ -1,0 +1,70 @@
+version: '3.1'
+
+networks:
+  jenkins:
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs-ca:
+  jenkins-docker-certs-client:
+  jenkins-docker-certs-server:
+  registry-data:
+
+services:
+
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    image: myjenkins-blueocean:2.332.2-1
+    container_name: jenkins-blueocean
+    restart: always
+    networks:
+      - jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    tty: true
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs-client:/certs/client:ro
+    environment:
+      - DOCKER_HOST=tcp://docker:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+
+  dind:
+    build:
+      context: ./dind
+      dockerfile: Dockerfile.dind
+    image: dind-custom
+    privileged: true
+    restart: always
+    networks:
+      jenkins:
+        aliases:
+          - docker
+    ports:
+      - 2376:2376
+    tty: true
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs-ca:/certs/ca
+      - jenkins-docker-certs-client:/certs/client
+      - jenkins-docker-certs-server:/certs/server
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+    command: --storage-driver overlay2
+
+  registry:
+    image: registry:2
+    container_name: registry
+    restart: always
+    networks:
+      jenkins:
+        aliases:
+          - registry
+    ports:
+      - 5000:5000
+    volumes:
+      - registry-data:/var/lib/registry

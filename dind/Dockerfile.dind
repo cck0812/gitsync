@@ -1,0 +1,4 @@
+FROM docker:20.10.15-dind
+USER root
+ADD docker /etc/default/docker
+ADD daemon.json /etc/docker/daemon.json
