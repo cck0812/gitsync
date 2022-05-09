@@ -4,6 +4,10 @@
 
 Build a CI testing environment to automatically running the build, testing actions whenever the code in remote repository changes.
 
+## CI Pipeline
+
+![Jenkins_ci_pipeline](./jenkins_architecture.png)
+
 ## Setup
 
 1. In terminal, to run `docker-compose up -d`, to setup Jenkins, private registry
