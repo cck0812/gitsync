@@ -14,7 +14,7 @@ services:
 
   jenkins:
     build:
-      context: .
+      context: ./jenkins/
       dockerfile: Dockerfile.jenkins
     image: myjenkins-blueocean:2.332.2-1
     container_name: jenkins-blueocean
